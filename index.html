@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>stormcounter</title>
+    <style type="text/css">
+        .control {
+            background-size: cover;
+            display: inline-block;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    //document.documentElement.clientWidth
+    //document.documentElement.clientHeight
+// WUBRG
+function makeCounter(id) {
+    var d = document.createElement("div");
+    d.id = id;
+    d.classList.add("control");
+    d.style.backgroundImage = "url(" + id + ".png)";
+    d.style.width = "400px";
+    d.style.height = "400px";
+    document.body.appendChild(d);
+} 
+
+for (const id of ["w", "u", "b", "r", "g", "colorless", "storm"]) {
+    makeCounter(id);
+} 
+
+function doLayout() {
+
+}
+
+(function() {  
+  var resizeTimeout;
+  function resizeThrottler() {
+    // ignore resize events as long as an actualResizeHandler execution is in the queue
+    if ( !resizeTimeout ) {
+      resizeTimeout = setTimeout(function() {
+        resizeTimeout = null;
+        doLayout();
+       }, 66);
+    }
+  }
+  window.addEventListener("resize", resizeThrottler, false);
+}());
+
+</script>
+
+</body>
+</html>
