@@ -7,32 +7,77 @@
             background-size: cover;
             display: inline-block;
             margin: 10px;
+            width: 400px;
+            height: 400px;
+            font-size: 40px;            
+            background-blend-mode: screen;
+        }
+        .text {
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            text-align: center;
+            text-shadow: -3px 0 black, 0 3px black, 3px 0 black, 0 -3px black;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
 
 <script type="text/javascript">
-    //document.documentElement.clientWidth
-    //document.documentElement.clientHeight
-// WUBRG
+const allIds = ["storm", "w", "u", "b", "r", "g", "colorless"];
+
+var setControlRuleProperty = (function() {  
+    function getControlRule() {
+        for (const rule of document.styleSheets[0].cssRules) {
+            if (rule.selectorText == '.control') {
+                console.log(rule);
+                return rule;
+            }
+        }
+        throw "I can't find the stylesheet.";
+    }
+    // Hold on to the style sheet rule for .control.
+    const controlRule = getControlRule();
+    return function(prop, value) {
+        controlRule.style.setProperty(prop, value, null);
+    }
+})();
+
 function makeCounter(id) {
     var d = document.createElement("div");
     d.id = id;
     d.classList.add("control");
     d.style.backgroundImage = "url(" + id + ".png)";
-    d.style.width = "400px";
-    d.style.height = "400px";
+    var text = document.createElement("div");
+    text.classList.add("text");
+    text.innerText = "0";
+    d.appendChild(text);
+
     document.body.appendChild(d);
 } 
 
-for (const id of ["w", "u", "b", "r", "g", "colorless", "storm"]) {
+function doLayout() {
+    const w = document.documentElement.clientWidth;
+    const h = document.documentElement.clientHeight;
+    var size;
+    if (w > h) {
+        size = Math.min((w-120)/4, (h-40)/2);
+    } else {
+        size = Math.min((h-120)/4, (w-40)/2);
+    }
+    setControlRuleProperty('width', size + "px");
+    setControlRuleProperty('height', size + "px");
+    setControlRuleProperty('font-size', (size/2) + "px");
+}
+
+for (const id of allIds) {
     makeCounter(id);
 } 
-
-function doLayout() {
-
-}
+doLayout();
 
 (function() {  
   var resizeTimeout;
