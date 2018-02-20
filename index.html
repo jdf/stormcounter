@@ -4,13 +4,14 @@
     <title>stormcounter</title>
     <style type="text/css">
         .control {
-            background-size: cover;
+            background-position: center center;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
             display: inline-block;
             margin: 10px;
-            width: 400px;
-            height: 400px;
-            font-size: 40px;            
-            background-blend-mode: screen;
+            font-size: 40px;   
+            background-color: darkgray;
+            background-blend-mode: lighten;         
         }
         .text {
             margin-left: auto;
@@ -22,59 +23,67 @@
             text-align: center;
             text-shadow: -3px 0 black, 0 3px black, 3px 0 black, 0 -3px black;
             font-family: monospace;
+            user-select: none;            
         }
     </style>
 </head>
 <body>
 
 <script type="text/javascript">
-const allIds = ["storm", "w", "u", "b", "r", "g", "colorless"];
+const resetters = [];
 
-var setControlRuleProperty = (function() {  
-    function getControlRule() {
-        for (const rule of document.styleSheets[0].cssRules) {
-            if (rule.selectorText == '.control') {
-                console.log(rule);
-                return rule;
-            }
-        }
-        throw "I can't find the stylesheet.";
+var setControlRuleProperty = (function() {
+  function getControlRule() {
+    for (const rule of document.styleSheets[0].cssRules) {
+      if (rule.selectorText == '.control') {
+        return rule;
+      }
     }
-    // Hold on to the style sheet rule for .control.
-    const controlRule = getControlRule();
-    return function(prop, value) {
-        controlRule.style.setProperty(prop, value, null);
-    }
+    throw "I can't find the stylesheet.";
+  }
+  // Hold on to the style sheet rule for .control.
+  const controlRule = getControlRule();
+  return function(prop, value) {
+    controlRule.style.setProperty(prop, value, null);
+  }
 })();
 
 function makeCounter(id) {
-    var d = document.createElement("div");
-    d.id = id;
-    d.classList.add("control");
-    d.style.backgroundImage = "url(" + id + ".png)";
-    var text = document.createElement("div");
-    text.classList.add("text");
-    text.innerText = "0";
-    d.appendChild(text);
-
-    document.body.appendChild(d);
-} 
+  const d = document.createElement("div");
+  d.id = id;
+  d.classList.add("control");
+  d.style.backgroundImage = "url(" + id + ".png)";
+  const text = document.createElement("div");
+  text.classList.add("text");
+  text.innerText = "0";
+  d.appendChild(text);
+  var score = 0;
+  const displayScore = function() { text.innerText = "" + score; }
+  d.onclick = function(e) {
+    const bounds = d.getBoundingClientRect();
+    const y = e.clientY - bounds.top;
+    score += (y > bounds.height / 2) ? -1 : 1;
+    if (score < 0)
+      score = 0;
+    displayScore();
+  }
+  resetters.push(function() {
+    score = 0;
+    displayScore();
+  });
+  document.body.appendChild(d);
+}
 
 function doLayout() {
     const w = document.documentElement.clientWidth;
     const h = document.documentElement.clientHeight;
-    var size;
-    if (w > h) {
-        size = Math.min((w-120)/4, (h-40)/2);
-    } else {
-        size = Math.min((h-120)/4, (w-40)/2);
-    }
+    var size = Math.max(w, h)/4 - 30;
     setControlRuleProperty('width', size + "px");
     setControlRuleProperty('height', size + "px");
     setControlRuleProperty('font-size', (size/2) + "px");
 }
 
-for (const id of allIds) {
+for (const id of ["storm", "w", "u", "b", "r", "g", "colorless"]) {
     makeCounter(id);
 } 
 doLayout();
@@ -82,12 +91,11 @@ doLayout();
 (function() {  
   var resizeTimeout;
   function resizeThrottler() {
-    // ignore resize events as long as an actualResizeHandler execution is in the queue
     if ( !resizeTimeout ) {
       resizeTimeout = setTimeout(function() {
         resizeTimeout = null;
         doLayout();
-       }, 66);
+       }, 30);
     }
   }
   window.addEventListener("resize", resizeThrottler, false);
