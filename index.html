@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="mobile-web-app-capable" content="yes">
     <title>stormcounter</title>
     <style type="text/css">
         .control {
@@ -59,7 +60,7 @@ function makeCounter(id) {
   d.appendChild(text);
   var score = 0;
   const displayScore = function() { text.innerText = "" + score; }
-  d.onclick = function(e) {
+  d.onmousedown = function(e) {
     const bounds = d.getBoundingClientRect();
     const y = e.clientY - bounds.top;
     score += (y > bounds.height / 2) ? -1 : 1;
